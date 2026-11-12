@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REFEREE Dashboard</title>
+<style>
+  :root{
+    --bg:#0b0e14; --panel:#131824; --panel2:#1a2130; --line:#232c3d;
+    --txt:#e6edf6; --muted:#8aa0bd; --accent:#4da3ff;
+    --crit:#ff4d5e; --high:#ff9f40; --med:#ffd24d; --low:#5c6b82; --ok:#39d98a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  header{padding:20px 24px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  header h1{margin:0;font-size:20px;letter-spacing:.5px}
+  header .sub{color:var(--muted);font-size:13px}
+  .wrap{padding:20px 24px;max-width:1400px;margin:0 auto}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .card .n{font-size:28px;font-weight:700}
+  .card .l{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
+  .card.crit .n{color:var(--crit)} .card.high .n{color:var(--high)}
+  .card.reach .n{color:var(--accent)} .card.low .n{color:var(--ok)}
+  .bar{display:flex;height:10px;border-radius:6px;overflow:hidden;margin:4px 0 18px;border:1px solid var(--line)}
+  .bar span{display:block}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+  input,select{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px}
+  input[type=search]{min-width:220px}
+  .chip{cursor:pointer;padding:6px 12px;border-radius:20px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:12px;user-select:none}
+  .chip.on{background:var(--accent);color:#04101f;border-color:var(--accent);font-weight:600}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);font-size:13px;white-space:nowrap}
+  th{color:var(--muted);font-weight:600;cursor:pointer;position:sticky;top:0;background:var(--panel2);user-select:none}
+  tr:hover td{background:var(--panel2)}
+  td.drv{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--txt)}
+  .pill{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:700}
+  .pill.CRITICAL{background:rgba(255,77,94,.18);color:var(--crit)}
+  .pill.HIGH{background:rgba(255,159,64,.18);color:var(--high)}
+  .pill.MEDIUM{background:rgba(255,210,77,.16);color:var(--med)}
+  .pill.LOW{background:rgba(92,107,130,.2);color:var(--low)}
+  .tier{font-size:11px;color:var(--muted)}
+  .tier.LOW{color:var(--crit);font-weight:700}
+  .reachY{color:var(--accent);font-weight:600}
+  .reachN{color:var(--muted)}
+  .heat{display:grid;grid-template-columns:1fr auto auto auto;gap:2px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:18px}
+  .heat .h{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+  .heat .catname{font-size:13px}
+  .heat .val{font-variant-numeric:tabular-nums}
+  .drop{border:2px dashed var(--line);border-radius:10px;padding:26px;text-align:center;color:var(--muted);margin-bottom:18px}
+  .drop.hot{border-color:var(--accent);color:var(--accent)}
+  .foot{color:var(--muted);font-size:12px;margin-top:16px}
+  a{color:var(--accent)}
+  .hiddenrow{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>REFEREE</h1>
+  <span class="sub">Kernel Driver Reachability Dashboard &mdash; three-axis attack-surface view</span>
+</header>
+<div class="wrap">
+  <div id="dropzone" class="drop">
+    Drop a <b>deepscan-*.json</b> report here, or <label style="color:var(--accent);cursor:pointer;text-decoration:underline">browse<input id="file" type="file" accept="application/json,.json" hidden></label>.
+    <div style="margin-top:8px;font-size:12px">Everything runs locally in your browser &mdash; nothing is uploaded.</div>
+  </div>
+
+  <div id="meta" class="sub" style="margin-bottom:12px"></div>
+
+  <div class="cards" id="cards"></div>
+  <div class="bar" id="riskbar"></div>
+
+  <div class="heat" id="heat"></div>
+
+  <div class="controls">
+    <input id="q" type="search" placeholder="filter driver / category / signer…" />
+    <span class="chip" data-f="reachable">User-reachable only</span>
+    <span class="chip" data-f="lowtier">LOW tier (sandbox)</span>
+    <span class="chip" data-f="lol">LOLDrivers match</span>
+    <span class="chip" data-f="critical">CRITICAL/HIGH</span>
+    <select id="cat"><option value="">All categories</option></select>
+    <span class="sub" id="count"></span>
+  </div>
+
+  <div style="overflow:auto;max-height:70vh">
+    <table id="tbl">
+      <thead><tr>
+        <th data-k="driver">Driver</th>
+        <th data-k="category">Category</th>
+        <th data-k="risk_level">Risk</th>
+        <th data-k="total_score">Score</th>
+        <th data-k="cap_score">Cap</th>
+        <th data-k="reach_score">Reach</th>
+        <th data-k="vuln_score">Vuln</th>
+        <th data-k="acl_status">Reachable</th>
+        <th data-k="reach_tier">Tier</th>
+        <th data-k="exposure_score">Exp</th>
+        <th data-k="lol_match">LOL</th>
+        <th data-k="signer">Signer</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div class="foot">REFEREE &mdash; defensive driver attack-surface auditor. Reachability is the finding: a driver you can't open a handle to isn't your problem today.</div>
+</div>
+
+<script>
+const RISK_ORDER={CRITICAL:4,HIGH:3,MEDIUM:2,LOW:1};
+let DATA=null, ROWS=[], sortK="total_score", sortDir=1;  // default: highest score first
+const activeF=new Set();
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function load(json){
+  DATA=json; ROWS=json.findings||[];
+  const s=json.stats||{};
+  $("#meta").innerHTML=`<b>${esc(json.host)}</b> &middot; ${esc(json.os||"")} &middot; ${esc(json.generated)} &middot; ${json.total_drivers} drivers scanned, ${json.flagged} flagged`;
+  const cards=[
+    ["total",json.flagged,"flagged"],
+    ["crit",s.critical||0,"critical"],
+    ["high",s.high||0,"high"],
+    ["reach",s.user_reachable||0,"user-reachable"],
+    ["low",s.reach_low_tier||0,"low-tier (sandbox)"],
+    ["total",s.wdac_blocked||0,"wdac blocked"],
+  ];
+  $("#cards").innerHTML=cards.map(([c,n,l])=>`<div class="card ${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+  // risk bar
+  const rb=[["crit",s.critical||0,"var(--crit)"],["high",s.high||0,"var(--high)"],["med",s.medium||0,"var(--med)"],["low",s.low||0,"var(--low)"]];
+  const tot=rb.reduce((a,[, n])=>a+n,0)||1;
+  $("#riskbar").innerHTML=rb.map(([,n,col])=>`<span style="width:${n/tot*100}%;background:${col}" title="${n}"></span>`).join("");
+  // category heatmap
+  const cats=json.category_breakdown||buildCats(ROWS);
+  const maxAvg=Math.max(...cats.map(c=>c.AvgScore||0),1);
+  $("#heat").innerHTML=`<div class="h">Category</div><div class="h">Count</div><div class="h">Avg score</div><div class="h">Reachable</div>`+
+    cats.sort((a,b)=>b.AvgScore-a.AvgScore).map(c=>{
+      const w=(c.AvgScore/maxAvg*100).toFixed(0);
+      return `<div class="catname">${esc(c.Category)}<div style="height:4px;margin-top:3px;border-radius:3px;background:linear-gradient(90deg,var(--accent) ${w}%,var(--panel2) ${w}%)"></div></div>`+
+             `<div class="val">${c.Count}</div><div class="val">${c.AvgScore}</div><div class="val">${c.UserReachable}</div>`;
+    }).join("");
+  // category select
+  const uniq=[...new Set(ROWS.map(r=>r.category))].sort();
+  $("#cat").innerHTML=`<option value="">All categories</option>`+uniq.map(c=>`<option>${esc(c)}</option>`).join("");
+  $("#dropzone").style.display="none";
+  render();
+}
+function buildCats(rows){
+  const m={};
+  rows.forEach(r=>{(m[r.category]??=[]).push(r)});
+  return Object.entries(m).map(([k,v])=>({Category:k,Count:v.length,
+    AvgScore:Math.round(v.reduce((a,r)=>a+r.total_score,0)/v.length*10)/10,
+    UserReachable:v.filter(r=>r.acl_status==="USER_REACHABLE").length}));
+}
+function passF(r){
+  if(activeF.has("reachable") && r.acl_status!=="USER_REACHABLE") return false;
+  if(activeF.has("lowtier") && r.reach_tier!=="LOW") return false;
+  if(activeF.has("lol") && !r.lol_match) return false;
+  if(activeF.has("critical") && !(r.risk_level==="CRITICAL"||r.risk_level==="HIGH")) return false;
+  const cat=$("#cat").value; if(cat && r.category!==cat) return false;
+  const q=$("#q").value.trim().toLowerCase();
+  if(q){ const hay=`${r.driver} ${r.category} ${r.signer} ${r.acl_status}`.toLowerCase(); if(!hay.includes(q)) return false; }
+  return true;
+}
+function render(){
+  let rows=ROWS.filter(passF);
+  rows.sort((a,b)=>{
+    let x=a[sortK], y=b[sortK];
+    if(sortK==="risk_level"){x=RISK_ORDER[x]||0;y=RISK_ORDER[y]||0;}
+    if(typeof x==="string"){x=x.toLowerCase();y=String(y).toLowerCase();}
+    return x<y?sortDir:x>y?-sortDir:0;
+  });
+  $("#count").textContent=`${rows.length} / ${ROWS.length} shown`;
+  $("#tbl tbody").innerHTML=rows.map(r=>`<tr>
+    <td class="drv">${esc(r.driver)}</td>
+    <td>${esc(r.category)}</td>
+    <td><span class="pill ${r.risk_level}">${r.risk_level}</span></td>
+    <td><b>${r.total_score}</b></td>
+    <td>${r.cap_score}</td><td>${r.reach_score}</td><td>${r.vuln_score}</td>
+    <td class="${r.acl_status==='USER_REACHABLE'?'reachY':'reachN'}">${r.acl_status==='USER_REACHABLE'?'YES':esc(r.acl_status)}</td>
+    <td class="tier ${esc(r.reach_tier)}">${esc(r.reach_tier||'')}</td>
+    <td>${r.exposure_score??''}</td>
+    <td>${r.lol_match?'<span class="reachY">'+esc(r.lol_hash||'yes')+'</span>':'&middot;'}</td>
+    <td class="tier">${esc((r.signer||'').replace(/^CN=/,'').slice(0,34))}</td>
+  </tr>`).join("");
+}
+// events
+$("#q").addEventListener("input",render);
+$("#cat").addEventListener("change",render);
+document.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{
+  const f=c.dataset.f; c.classList.toggle("on");
+  activeF.has(f)?activeF.delete(f):activeF.add(f); render();
+}));
+document.querySelectorAll("#tbl th").forEach(th=>th.addEventListener("click",()=>{
+  const k=th.dataset.k; if(sortK===k) sortDir*=-1; else {sortK=k; sortDir=1;} render();
+}));
+// file load
+const dz=$("#dropzone");
+["dragenter","dragover"].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.add("hot")}));
+["dragleave","drop"].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.remove("hot")}));
+dz.addEventListener("drop",ev=>{const f=ev.dataTransfer.files[0]; if(f) readFile(f);});
+$("#file").addEventListener("change",ev=>{const f=ev.target.files[0]; if(f) readFile(f);});
+function readFile(f){const r=new FileReader();r.onload=()=>{try{load(JSON.parse(r.result));}catch(e){alert("Invalid JSON: "+e.message);}};r.readAsText(f);}
+// auto-load ?data= or embedded
+(async()=>{
+  const u=new URLSearchParams(location.search).get("data");
+  if(u){try{load(await (await fetch(u)).json());return;}catch(e){}}
+  if(window.REFEREE_DATA){load(window.REFEREE_DATA);}
+})();
+</script>
+</body>
+</html>

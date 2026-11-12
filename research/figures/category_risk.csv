@@ -1,0 +1,9 @@
+category,count,avg_score,user_reachable
+Third-Party-Other,1,70.0,1
+Anti-Cheat,3,59.0,1
+GPU-NVIDIA,1,52.0,1
+Security-Defender,2,45.0,1
+GPU-Intel,1,42.0,1
+OEM-Dell,2,32.5,0
+Virtualization-VBox,1,30.0,0
+Microsoft,1,30.0,0

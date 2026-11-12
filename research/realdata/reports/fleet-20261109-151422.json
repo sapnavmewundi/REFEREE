@@ -1,0 +1,23 @@
+﻿{
+    "tool":  "referee-fleet",
+    "version":  "1.0",
+    "generated":  "2026-11-09T15:14:22.0995757+05:30",
+    "host_count":  1,
+    "hosts":  [
+                  {
+                      "host":  "DR_SAPNA",
+                      "os":  "Microsoft Windows NT 10.0.26300.0",
+                      "generated":  "2026-11-09T15:14:21.8000907+05:30",
+                      "total":  482,
+                      "flagged":  482,
+                      "critical":  1,
+                      "high":  28,
+                      "user_reachable":  24,
+                      "low_tier":  5
+                  }
+              ],
+    "unique_flagged_drivers":  474,
+    "drift_drivers":  [
+
+                      ]
+}

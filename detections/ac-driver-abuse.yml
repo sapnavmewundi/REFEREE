@@ -1,0 +1,152 @@
+title: Anti-Cheat Driver Service Registration Outside Game Install
+id: ref-001
+status: experimental
+description: >
+  Detects when a known anti-cheat kernel driver service is created or modified
+  outside a standard game installation path. May indicate driver being staged
+  for abuse rather than legitimate game use.
+logsource:
+  product: windows
+  service: system
+detection:
+  selection:
+    EventID: 7045
+    ServiceName|contains:
+      - 'vgk'
+      - 'vgc'
+      - 'EasyAntiCheat'
+      - 'BEDaisy'
+      - 'mhyprot'
+      - 'xhunter1'
+      - 'faceit'
+  filter_install:
+    ImagePath|contains:
+      - 'Program Files'
+      - 'Steam'
+      - 'Epic Games'
+      - 'Riot Games'
+  condition: selection and not filter_install
+level: high
+tags:
+  - attack.persistence
+  - attack.t1543.003
+references:
+  - https://loldrivers.io
+  - https://github.com/referee-project/referee
+
+---
+title: Anti-Cheat Driver Device Handle from Non-Game Process
+id: ref-002
+status: experimental
+description: >
+  Detects a process opening a handle to a known anti-cheat driver device object
+  when the calling process is not the expected game or launcher binary. This is
+  a strong indicator of driver abuse for kernel-level capabilities.
+  Requires Object Access auditing enabled (auditpol /set /subcategory:"Kernel Object" /success:enable).
+logsource:
+  product: windows
+  service: security
+detection:
+  selection_device:
+    EventID: 4663
+    ObjectName|contains:
+      - '\Device\vgk'
+      - '\Device\EasyAntiCheat'
+      - '\Device\BEDaisy'
+      - '\Device\mhyprot'
+      - '\Device\XHUNTER'
+  filter_legitimate:
+    ProcessName|contains:
+      - 'RiotClientServices.exe'
+      - 'VALORANT.exe'
+      - 'EasyAntiCheat_EOS.exe'
+      - 'BEService.exe'
+  condition: selection_device and not filter_legitimate
+level: critical
+tags:
+  - attack.defense_evasion
+  - attack.t1562.001
+
+---
+title: Suspicious Kernel Driver Load — Known Anti-Cheat or Abuse-History Driver
+id: ref-003
+status: experimental
+description: >
+  Detects Sysmon Event ID 6 for a known anti-cheat or abuse-history kernel
+  driver. These drivers provide ring-0 primitives (memory access, callback
+  removal, process manipulation) and have documented BYOVD abuse cases.
+  A load outside expected game-install context is a precursor to telemetry
+  blinding or privilege escalation.
+  Note: callback removal itself has no standard Windows event; this rule
+  catches the precursor (the driver load). Pair with ref-004 (ETW session
+  tampering) for two-stage correlation.
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection_driver_load:
+    EventID: 6
+    ImageLoaded|endswith:
+      - '\vgk.sys'
+      - '\EasyAntiCheat.sys'
+      - '\BEDaisy.sys'
+      - '\mhyprot2.sys'
+      - '\mhyprot3.sys'
+      - '\xhunter1.sys'
+      - '\faceit.sys'
+  filter_signed:
+    Signed: 'true'
+    SignatureStatus: 'Valid'
+    ImageLoaded|contains:
+      - 'Program Files'
+      - 'Riot Games'
+      - 'Steam'
+      - 'Epic Games'
+  condition: selection_driver_load and not filter_signed
+level: high
+tags:
+  - attack.defense_evasion
+  - attack.t1562.001
+  - attack.t1068
+falsepositives:
+  - Legitimate game first-time install loading the AC driver
+  - Windows Update replacing kernel components
+
+---
+title: ETW Trace Session Modified by Non-System Process
+id: ref-004
+status: experimental
+description: >
+  Detects a non-SYSTEM process stopping or modifying an ETW trace session
+  that is typically controlled by security products. Driver-assisted ETW
+  blinding (patching EtwpEventWriteFull or stopping the NT Kernel Logger
+  session) is a documented post-exploitation technique. This rule filters
+  to security-relevant sessions and excludes SYSTEM-context changes.
+logsource:
+  product: windows
+  service: microsoft-windows-etw-session
+detection:
+  selection:
+    EventID:
+      - 12
+      - 14
+    SessionName|contains:
+      - 'NT Kernel Logger'
+      - 'Circular Kernel Context Logger'
+      - 'Defender'
+      - 'SenseIR'
+      - 'EventLog-Security'
+      - 'DiagTrack'
+  filter_system:
+    User|contains:
+      - 'SYSTEM'
+      - 'LOCAL SERVICE'
+      - 'NETWORK SERVICE'
+  condition: selection and not filter_system
+level: high
+tags:
+  - attack.defense_evasion
+  - attack.t1562.006
+falsepositives:
+  - Admin-initiated diagnostic trace stops
+  - GPO-driven ETW configuration changes

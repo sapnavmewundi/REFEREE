@@ -1,0 +1,18 @@
+﻿{
+    "tool":  "referee-wdac-validate",
+    "version":  "1.0",
+    "generated":  "2026-11-09T15:12:38.5696349+05:30",
+    "host":  "DR_SAPNA",
+    "policy_xml":  "C:\\Users\\prajwal\\referee\\auditor\\out\\referee-audit-policy-20261109-151238.xml",
+    "policy_cip":  "C:\\Users\\prajwal\\referee\\auditor\\out\\referee-audit-20261109-151238.cip",
+    "blocked_count":  1,
+    "coverage_pass":  1,
+    "coverage_missing":  [
+
+                         ],
+    "excluded_leaked":  [
+
+                        ],
+    "static_validation":  "PASS",
+    "deployed_audit":  false
+}

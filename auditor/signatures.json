@@ -1,0 +1,16 @@
+{
+  "schema": "referee-ac-signatures/1",
+  "updated": "2026-11-08",
+  "note": "Known anti-cheat kernel drivers. abuse_known flags drivers with public weaponization history. device_names are documented control interfaces.",
+  "drivers": [
+    {"product":"Easy Anti-Cheat","vendor":"Epic Games","files":["EasyAntiCheat.sys","EasyAntiCheat_EOS.sys"],"services":["EasyAntiCheat","EasyAntiCheat_EOS"],"device_names":["\\\\.\\EasyAntiCheat"],"expected_signer":["Kernel Mode Code Signing","EPIC GAMES","Easy Anti-Cheat"],"abuse_known":false,"notes":"Broad kernel telemetry; obfuscated IOCTL surface."},
+    {"product":"BattlEye","vendor":"BattlEye","files":["BEDaisy.sys","BEBootDriver.sys"],"services":["BEDaisy","BEService"],"device_names":["\\\\.\\BEDaisy"],"expected_signer":["BattlEye Innovations"],"abuse_known":false,"notes":"Ring-0 scanner; kernel R/W primitives."},
+    {"product":"Riot Vanguard","vendor":"Riot Games","files":["vgk.sys","vgc.sys"],"services":["vgk","vgc"],"device_names":["\\\\.\\vgk"],"expected_signer":["Riot Games"],"abuse_known":false,"notes":"Boot-start ring-0; largest consumer kernel footprint."},
+    {"product":"nProtect GameGuard","vendor":"INCA Internet","files":["npggNT.des","GxWfpSys.sys","dump_wmimmc.sys"],"services":["npggsvc","GameMon"],"device_names":[],"expected_signer":["INCA Internet"],"abuse_known":true,"notes":"Historic BYOVD / arbitrary R/W abuse in GameGuard-family drivers."},
+    {"product":"mhyprot (miHoYo/Genshin)","vendor":"miHoYo","files":["mhyprot2.sys","mhyprot3.sys"],"services":["mhyprot2","mhyprot3"],"device_names":["\\\\.\\mhyprot2"],"expected_signer":["miHoYo","Shanghai"],"abuse_known":true,"notes":"mhyprot2.sys widely abused (2022) for arbitrary kernel R/W + process kill; used by ransomware to disable AV."},
+    {"product":"Xigncode3","vendor":"Wellbia","files":["xhunter1.sys"],"services":["xhunter1"],"device_names":["\\\\.\\XHUNTER1"],"expected_signer":["Wellbia.com"],"abuse_known":true,"notes":"xhunter1.sys exposes physical memory R/W IOCTLs; public PoCs exist."},
+    {"product":"PunkBuster","vendor":"Even Balance","files":["PnkBstrK.sys"],"services":["PnkBstrA","PnkBstrB"],"device_names":[],"expected_signer":["Even Balance"],"abuse_known":false,"notes":"Legacy; service-based."},
+    {"product":"FACEIT AC","vendor":"FACEIT","files":["faceit.sys"],"services":["faceit"],"device_names":[],"expected_signer":["FACEIT"],"abuse_known":false,"notes":"Ring-0 scanner."},
+    {"product":"ESEA","vendor":"ESEA","files":["ESEADriver4.sys"],"services":["ESEADriver4"],"device_names":[],"expected_signer":["ESEA"],"abuse_known":false,"notes":"Ring-0 anti-cheat driver."}
+  ]
+}

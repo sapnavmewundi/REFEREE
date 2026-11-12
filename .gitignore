@@ -1,0 +1,19 @@
+# LOLDrivers cache (large, regenerated at runtime)
+auditor/loldrivers-cache.json
+auditor/loldrivers-cache-clean.json
+
+# Scan output (generated per-run)
+auditor/out/
+lab/sim-output/
+
+# Helper/deploy scripts (local-only)
+_*.sh
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/

@@ -1,0 +1,13 @@
+category,count,avg_score,user_reachable
+Anti-Cheat,1,65.0,1
+GPU-NVIDIA,1,45.0,0
+Virtualization-VBox,4,41.0,2
+Security-Defender,7,39.7,4
+OEM-Dell,2,37.5,0
+Audio/Network-Realtek,1,35.0,0
+Virtualization-HyperV,6,34.2,0
+GPU-Intel,9,28.6,1
+OEM-HP,3,28.3,0
+Microsoft,431,26.4,47
+Third-Party-Other,4,24.2,1
+GPU-AMD,11,20.5,0

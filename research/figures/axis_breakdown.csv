@@ -1,0 +1,13 @@
+host,driver,category,cap,reach,vuln,total,exposure,reachable,tier,risk,lol
+DR_SAPNA,wdnisdrv.sys,Security-Defender,25,40,10,75,6,USER_REACHABLE,LOW,CRITICAL,True
+DR_SAPNA,vgk.sys,Anti-Cheat,25,32,20,77,6,USER_REACHABLE,MEDIUM,CRITICAL,False
+DR_SAPNA,ipt.sys,Third-Party-Other,20,40,10,70,3,USER_REACHABLE,LOW,CRITICAL,True
+DR_SAPNA,mhyprot2.sys,Anti-Cheat,25,15,30,55,2,Unknown,,HIGH,True
+DR_SAPNA,nvlddmkm.sys,GPU-NVIDIA,20,32,0,52,2,USER_REACHABLE,MEDIUM,HIGH,False
+DR_SAPNA,dbutil_2_3.sys,OEM-Dell,20,15,30,45,1,Unknown,,HIGH,True
+DR_SAPNA,wdfilter.sys,Security-Defender,15,0,0,15,0,RESTRICTED,,LOW,False
+DR_SAPNA,vboxdrv.sys,Virtualization-VBox,20,0,10,30,0,RESTRICTED,,MEDIUM,True
+DR_SAPNA,igdkmd64.sys,GPU-Intel,10,32,0,42,2,USER_REACHABLE,MEDIUM,MEDIUM,False
+DR_SAPNA,easyanticheat.sys,Anti-Cheat,25,0,20,45,0,RESTRICTED,,MEDIUM,False
+DR_SAPNA,dellinstrumentation.sys,OEM-Dell,10,0,10,20,0,RESTRICTED,,LOW,True
+DR_SAPNA,ksld.sys,Microsoft,5,15,10,30,1,Unknown,,MEDIUM,True
