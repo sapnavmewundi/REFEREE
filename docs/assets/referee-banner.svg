@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#58a6ff"/>
+      <stop offset="100%" style="stop-color:#1f6feb"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="200" rx="12" fill="url(#bg)"/>
+  <rect x="0" y="185" width="800" height="3" fill="url(#accent)" rx="1.5"/>
+  <!-- Shield icon -->
+  <g transform="translate(60, 40)">
+    <path d="M40 10 L70 25 L70 55 C70 80 40 95 40 95 C40 95 10 80 10 55 L10 25 Z"
+          fill="none" stroke="#58a6ff" stroke-width="2.5" opacity="0.9"/>
+    <path d="M30 50 L38 58 L52 42" fill="none" stroke="#3fb950" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Magnifying glass overlay -->
+    <circle cx="55" cy="35" r="10" fill="none" stroke="#58a6ff" stroke-width="2" opacity="0.6"/>
+    <line x1="62" y1="42" x2="70" y2="50" stroke="#58a6ff" stroke-width="2" opacity="0.6" stroke-linecap="round"/>
+  </g>
+  <!-- Title -->
+  <text x="150" y="80" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="52" font-weight="700" fill="#e6edf3" letter-spacing="6">REFEREE</text>
+  <!-- Subtitle -->
+  <text x="150" y="115" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="16" fill="#8b949e">Kernel Driver Reachability Auditor</text>
+  <!-- Tagline -->
+  <text x="150" y="145" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="13" fill="#58a6ff" opacity="0.8">Three-axis risk scoring  |  Handle probe  |  10-tool defensive suite</text>
+  <!-- Stats pills -->
+  <g transform="translate(150, 160)">
+    <rect x="0" y="0" width="90" height="22" rx="11" fill="#1f6feb" opacity="0.2"/>
+    <text x="45" y="15" font-family="monospace" font-size="11" fill="#58a6ff" text-anchor="middle">482 drivers</text>
+    <rect x="100" y="0" width="100" height="22" rx="11" fill="#da3633" opacity="0.15"/>
+    <text x="150" y="15" font-family="monospace" font-size="11" fill="#f85149" text-anchor="middle">56 reachable</text>
+    <rect x="210" y="0" width="80" height="22" rx="11" fill="#3fb950" opacity="0.15"/>
+    <text x="250" y="15" font-family="monospace" font-size="11" fill="#3fb950" text-anchor="middle">42 gaps</text>
+    <rect x="300" y="0" width="90" height="22" rx="11" fill="#d29922" opacity="0.15"/>
+    <text x="345" y="15" font-family="monospace" font-size="11" fill="#d29922" text-anchor="middle">read-only</text>
+  </g>
+</svg>
